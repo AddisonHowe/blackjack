@@ -59,3 +59,21 @@ class TestHand:
     def test_score(self, card_list, expected_scores):
         hand = Hand(card_list)
         assert np.all(hand.score() == expected_scores)
+
+    def test_add(self):
+        hand1 = Hand(['1S', '1H', '1D'])
+        hand2 = Hand(['2S', '2H', '2D'])
+        hand3 = hand1 + hand2
+        assert hand1 == Hand(['1S', '1H', '1D'])
+        assert hand2 == Hand(['2S', '2H', '2D'])
+        assert hand3 == Hand(['1S', '1H', '1D']+['1S', '1H', '1D'])
+
+    def test_iadd(self):
+        hand1 = Hand(['1S', '1H', '1D'])
+        hand2 = Hand(['2S', '2H', '2D'])
+        hand3 = Hand(['1S', '1H', '1D'] + ['1S', '1H', '1D'])
+        hand1 += hand2
+        assert hand1 == hand3
+        assert hand1 == Hand(['1S', '1H', '1D']+['1S', '1H', '1D'])
+        assert hand2 == Hand(['2S', '2H', '2D'])
+        

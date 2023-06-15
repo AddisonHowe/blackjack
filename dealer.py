@@ -25,6 +25,8 @@ class Dealer:
     
     def get_score(self, include_hidden=False):
         if include_hidden:
+            return (self.hand + self.hidden_card).score()
+        else:
             return self.hand.score()
     
     def shuffle(self):
@@ -33,6 +35,10 @@ class Dealer:
     def deal_card_to_player(self, player):
         c = self.deck.pop()
         player.take_card(c)
+
+    def deal_card_to_self(self):
+        c = self.deck.pop()
+        self.hand.append(c)
 
     def deal_players(self, players):
         for player in players:
@@ -51,14 +57,6 @@ class Dealer:
         self.deal_players(players)
         self.deal_self(hidden=False)
 
-    def pay_blackjacks(self, players):
-        blackjacks = []
-        for player in players:
-            scores = player.get_score()
-            if 21 in scores:
-                blackjacks.append(player)
-        return blackjacks
-
     def play_to(self, player):
         actions = []
         while True:
@@ -75,4 +73,39 @@ class Dealer:
             elif action == "stay":  # Process stay
                 return "stay", actions
             else:
-                raise RuntimeError()
+                raise RuntimeError(f"Unknown action {action}")
+            
+    def play_to_self(self):
+        actions = []
+        while True:
+            # Get dealer action
+            action = self.hit_or_stay()
+            actions.append(action)
+            if action == "hit":  # Process hit
+                self.deal_card_to_self()
+                score = self.get_score()
+                if min(score) > 21:  # Check bust
+                    return "bust", actions
+            elif action == "stay":  # Process stay
+                return "stay", actions
+            else:
+                raise RuntimeError(f"Unknown action {action}")
+
+    def hit_or_stay(self):
+        scores = self.get_score()
+        scores_leq_21 = scores[scores <= 21]
+        max_score = max(scores)
+        if max(scores_leq_21) >= 17:
+            return "stay"
+        else:
+            return "hit"
+
+    def reveal_hidden_card(self):
+        self.hand += self.hidden_card
+        self.hidden_card = None
+
+    def handle_stay(self, players):
+        pass
+
+    def handle_bust(self, players):
+        pass

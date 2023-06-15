@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 from card import Card
 
 class Hand:
@@ -20,6 +21,9 @@ class Hand:
     def __len__(self):
         return len(self.cards)
     
+    def __eq__(self, other):
+        return Counter(self.cards) == Counter(other.cards)
+    
     def __iter__(self):
         self.current = 0
         return self
@@ -33,10 +37,25 @@ class Hand:
 
     def __add__(self, other):
         if isinstance(other, Hand):
+            return Hand(self.cards + other.cards)
+        elif isinstance(other, (list, set)):
+            assert all([isinstance(x, Card) for x in other])
+            return Hand(self.cards + list(other))
+        elif isinstance(other, Card):
+            return Hand(self.cards + [other])
+        else:
+            msg = f"Operator + not defined for Hand and {type(other)}"
+            raise RuntimeError(msg)
+
+    def __iadd__(self, other):
+        if isinstance(other, Hand):
             self.cards += other.cards
         elif isinstance(other, (list, set)):
             assert all([isinstance(x, Card) for x in other])
             self.cards += other
+        elif isinstance(other, Card):
+            self.cards.append(other)
+        return self
 
     def append(self, card):
         assert isinstance(card, Card)

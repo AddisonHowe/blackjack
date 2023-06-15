@@ -46,7 +46,7 @@ class Deck:
         return self.cards.pop()
     
     def top(self, n=5) -> str:
-        return "..."+", ".join([str(c) for c in self.cards[-n:]])
+        return "..." + ", ".join([str(c) for c in self.cards[-n:]])
 
     def shuffle(self):
         np.random.shuffle(self.cards)
