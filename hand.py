@@ -73,3 +73,8 @@ class Hand:
                     new_scores[i] += s[i]
                 scores = np.concatenate([*new_scores])
         return np.sort(np.unique(scores))
+    
+    def discard(self):
+        copy = Hand(self.cards)
+        self.cards = []
+        return copy

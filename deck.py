@@ -1,6 +1,7 @@
 from itertools import product as iterprod
 import numpy as np
 from card import Card
+from hand import Hand
 
 RANKS = [i for i in range(2, 11)] + ['J', 'Q', 'K', 'A']
 SUITS = ['C', 'D', 'H', 'S']
@@ -50,4 +51,34 @@ class Deck:
 
     def shuffle(self):
         np.random.shuffle(self.cards)
+
+    def __add__(self, other):
+        if isinstance(other, Deck):
+            return Deck(self.cards + other.cards)
+        elif isinstance(other, Hand):
+            return Deck(self.cards + other.cards)
+        elif isinstance(other, (list, set)):
+            assert all([isinstance(x, Card) for x in other])
+            return Deck(self.cards + list(other))
+        elif isinstance(other, Card):
+            return Deck(self.cards + [other])
+        else:
+            msg = f"Operator + not defined for Deck and {type(other)}"
+            raise RuntimeError(msg)
+
+    def __iadd__(self, other):
+        if isinstance(other, Deck):
+            self.cards += other.cards
+        elif isinstance(other, Hand):
+            self.cards += other.cards
+        elif isinstance(other, (list, set)):
+            assert all([isinstance(x, Card) for x in other])
+            self.cards += other
+        elif isinstance(other, Card):
+            self.cards.append(other)
+        return self
+
+    def append(self, card):
+        assert isinstance(card, Card)
+        self.cards.append(card)
     

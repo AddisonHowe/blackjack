@@ -47,11 +47,14 @@ class Table:
         # Dealer plays to self
         result, actions = self.dealer.play_to_self()
         print(self.dealer, actions, result)
-        # Dealer pays out
+        # Dealer pays or collects
         if result == "bust":
             self.dealer.handle_bust(self.players)
         elif result == "stay":
             self.dealer.handle_stay(self.players)
+        # Dealer retrieves cards
+        print(self)
+        self.dealer.collect_cards(self.players)
 
     def get_player_blackjacks(self):
         blackjacks = []
@@ -71,3 +74,4 @@ class Table:
         else:
             # Dealer pays out to blackjack players per the ratio
             print("dealer did not get blackjack")
+            

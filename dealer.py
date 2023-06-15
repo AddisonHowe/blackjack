@@ -104,8 +104,14 @@ class Dealer:
         self.hand += self.hidden_card
         self.hidden_card = None
 
+    def collect_cards(self, players):
+        self.discard_pile += self.hand.discard()
+        for player in players:
+            self.discard_pile += player.discard_hand()
+
     def handle_stay(self, players):
         pass
 
     def handle_bust(self, players):
         pass
+    

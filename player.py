@@ -22,6 +22,9 @@ class Player:
     def place_bet(self):
         pass
 
+    def discard_hand(self):
+        return self.hand.discard()
+
     def hit_or_stay(self, dealers_card, decision_method='random', **kwargs):        
         # Make decision
         if decision_method == 'random':
