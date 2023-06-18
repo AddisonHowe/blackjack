@@ -1,7 +1,6 @@
 import numpy as np
 from deck import Deck
 from dealer import Dealer
-from player import Player
 
 class Table:
 
@@ -11,13 +10,14 @@ class Table:
         self.num_players = len(players)
         # Process kwargs
         self.blackjack_payout_ratio = kwargs.get('blackjack_payout_ratio', 1.5)
+        self.shuffle_rule = kwargs.get('shuffle_rule', 'below_proportion')
+        self.min_deck_to_discard_ratio = kwargs.get('min_deck_to_discard_ratio', 
+                                                    0.50)
         # Initialize dealer
         deck = Deck.standard_deck(num_decks)
         self.dealer = Dealer(deck)
         self.house_chips = 0
-        # Initialize players
         
-
     def __repr__(self) -> str:
         return f"<Table: {self.num_decks} decks, {self.num_players} players>"
     
@@ -29,8 +29,7 @@ class Table:
         return s
 
     def play_blackjack_round(self):
-        # Shuffle cards
-        self.dealer.shuffle()
+        self.handle_shuffle()
         # Players place bets
         bets = []
         for player in self.players:
@@ -41,7 +40,7 @@ class Table:
         dealer_blackjack, blackjacks, non_blackjacks = self.handle_blackjacks()
         # If dealer got blackjack, game ends
         if dealer_blackjack:
-            print("Dealer got blackjack.")
+            self.dealer.collect_cards(self.players)
             return
         # Dealer plays against each non-blackjack player
         player_results = []
@@ -50,22 +49,34 @@ class Table:
             result, actions = self.dealer.play_to(player)
             player_results.append(result)
             player_actions.append(actions)
-            print(player, actions, result)
         # Dealer reveals hidden card
         self.dealer.reveal_hidden_card()
         # Dealer plays to self
         dealer_result, dealer_actions = self.dealer.play_to_self()
-        print(self.dealer, dealer_actions, dealer_result)
         if dealer_result == "bust":
             # Dealer busts
             self.handle_bust(non_blackjacks, player_results)
         elif dealer_result == "stay":
             # Dealer pays or collects
             self.handle_stay(non_blackjacks, player_results)
-        print(self)
         # Dealer retrieves cards
         self.dealer.collect_cards(self.players)
 
+    def handle_shuffle(self):
+        # Shuffle cards
+        if self.shuffle_rule == 'every_deal':
+            self.dealer.combine_discards_with_deck(shuffle=True)
+        elif self.shuffle_rule == 'below_proportion':
+            size_deck = len(self.dealer.get_deck())
+            size_discards = len(self.dealer.get_discard_pile())
+            prop = size_deck / (size_deck + size_discards)
+            if prop < self.min_deck_to_discard_ratio:
+                self.dealer.combine_discards_with_deck(shuffle=True)
+        elif self.shuffle_rule == 'continuous':
+            raise NotImplementedError()
+        else:
+            raise RuntimeError(f"Unknown shuffle rule `{self.shuffle_rule}`")
+    
     def handle_blackjacks(self):
         # Check dealer and player hands for blackjack
         dealer_blackjack = 21 in self.dealer.get_score(include_hidden=True)

@@ -23,6 +23,9 @@ class Dealer:
     def get_deck(self):
         return self.deck
     
+    def get_discard_pile(self):
+        return self.discard_pile
+    
     def get_score(self, include_hidden=False):
         if include_hidden:
             return (self.hand + self.hidden_card).score()
@@ -116,3 +119,10 @@ class Dealer:
     def pay_player(self, player, amount):
         player.retrieve_bet()
         player.take_chips(amount)
+
+    def combine_discards_with_deck(self, shuffle=True):
+        self.deck = self.discard_pile + self.deck
+        self.discard_pile = Deck()
+        if shuffle:
+            self.shuffle()
+    
