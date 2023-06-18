@@ -108,10 +108,11 @@ class Dealer:
         self.discard_pile += self.hand.discard()
         for player in players:
             self.discard_pile += player.discard_hand()
-
-    def handle_stay(self, players):
-        pass
-
-    def handle_bust(self, players):
-        pass
     
+    def take_player_bet(self, player):
+        bet = player.forfeit_bet()
+        return bet
+    
+    def pay_player(self, player, amount):
+        player.retrieve_bet()
+        player.take_chips(amount)
